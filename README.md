@@ -64,7 +64,9 @@ pip install -r requirements.txt
 
 4. Set Up Environment Variables
 Create a .env file in the project directory and add the following:
+
 VIRUSTOTAL_API_KEY=your_virustotal_api_key
+
 EMAIL_ADDRESS=your_email@gmail.com
 
 4. Add credentials.json
