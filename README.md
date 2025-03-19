@@ -22,6 +22,7 @@ Features
 -Stores scan results in an SQLite database.
 
 Technologies Used;
+
 ||| Python: The core programming language used for the project.
 
 ||| VirusTotal API: For scanning files and detecting malware.
