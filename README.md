@@ -53,15 +53,15 @@ Setup and Installation
 1. Clone the Repository
 Clone the repository to your local machine:
 
-bash
 git clone https://github.com/dkhacker707/m2tool.git
+
 cd m2tool
 
 2. Install Dependencies
 Install the required Python libraries:
 
-bash
 pip install -r requirements.txt
+
 4. Set Up Environment Variables
 Create a .env file in the project directory and add the following:
 VIRUSTOTAL_API_KEY=your_virustotal_api_key
