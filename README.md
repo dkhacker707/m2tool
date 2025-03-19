@@ -23,11 +23,17 @@ Features
 
 Technologies Used;
 ||| Python: The core programming language used for the project.
+
 ||| VirusTotal API: For scanning files and detecting malware.
+
 ||| Gmail API: For sending email reports.
+
 ||| SQLite: For storing scan results.
+
 ||| Watchdog: For real-time file system monitoring.
+
 ||| Google OAuth 2.0: For secure authentication with the Gmail API.
+
 ||| XML: For generating structured scan reports.
 
 Prerequisites
@@ -37,6 +43,30 @@ Before running the program, ensure you have the following:
 2. VirusTotal API Key: Sign up at VirusTotal and get an API key.
 
 3. Google Cloud Project:
-Create a project in the Google Cloud Console.
-Enable the Gmail API.
-Generate OAuth 2.0 credentials (credentials.json).
+-Create a project in the Google Cloud Console.
+-Enable the Gmail API.
+-Generate OAuth 2.0 credentials (credentials.json).
+
+Setup and Installation
+1. Clone the Repository
+Clone the repository to your local machine:
+
+bash
+git clone https://github.com/dkhacker707/m2tool.git
+cd m2tool
+
+2. Install Dependencies
+Install the required Python libraries:
+
+bash
+pip install -r requirements.txt
+4. Set Up Environment Variables
+Create a .env file in the project directory and add the following:
+VIRUSTOTAL_API_KEY=your_virustotal_api_key
+EMAIL_ADDRESS=your_email@gmail.com
+
+4. Add credentials.json
+Place the credentials.json file (from Google Cloud Console) in the project directory.
+
+
+
