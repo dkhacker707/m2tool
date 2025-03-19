@@ -1,7 +1,8 @@
 M2tool is a Python-based application designed to scan files and directories for malware using the Malware Tool API's (Virus Total, Microsoft Defender, AVG, Kaspersky etc). It provides real-time monitoring, heuristic analysis, and email reporting with XML attachments. The tool is built with a focus on detecting .php, .dll, and .exe payload files.
 
 
-Features
+Features;
+
 (A) File Scanning:
 -Scans files using the VirusTotal API.
 -Detects .php, .dll, and .exe files.
