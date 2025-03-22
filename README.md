@@ -43,32 +43,44 @@ o	Generate OAuth 2.0 credentials (credentials.json).
 4.	YARA Rules File: Create or download a .yar file containing YARA rules for malware detection. Place it in the project directory as malware_rules.yar.
 ________________________________________
 Setup and Installation
+
 1. Clone the Repository
 Clone the repository to your local machine:
+
 bash
 git clone https://github.com/dkhacker707/m2tool.git
+
 cd m2tool
-2. Install Dependencies
+
+3. Install Dependencies
 Install the required Python libraries:
+
 bash
+
 pip install -r requirements.txt
-3. Set Up Environment Variables
+
+5. Set Up Environment Variables
 Create a .env file in the project directory and add the following:
-plaintext
+
 VIRUSTOTAL_API_KEY=your_virustotal_api_key
 GMAIL_EMAIL=your_email@gmail.com
 Replace your_virustotal_api_key with your actual VirusTotal API key and your_email@gmail.com with your Gmail address.
-4. Add credentials.json
+
+6. Add credentials.json
 Place the credentials.json file (downloaded from the Google Cloud Console) in the project directory. This file is required for authenticating with the Gmail API.
-5. Add YARA Rules File
+
+8. Add YARA Rules File
 Place your YARA rules file (malware_rules.yar) in the project directory. This file is used for advanced malware detection.
+
 Usage
+
 1.	Run the script:
 bash
-Copy
+
 python m2tool.py
-2.	Enter the directory you want to scan when prompted.
-3.	The script will:
+
+3.	Enter the directory you want to scan when prompted.
+4.	The script will:
 o	Scan the directory for malicious files.
 o	Generate a PDF report (scan_report.pdf).
 o	Send the report via email to the address specified in the .env file.
@@ -82,8 +94,10 @@ The generated PDF report includes:
 •	Malicious and suspicious files.
 •	Entropy values.
 •	Threat details.
+
 Email Notification
 An email will be sent to the specified address with the PDF report attached.
+
 Notes
 •	Ensure the .env file is not shared or uploaded to public repositories, as it contains sensitive information.
 •	The quarantine directory (quarantine/) is automatically created in the project directory. Suspicious files will be moved here.
