@@ -5,7 +5,8 @@ import hashlib
 import shutil
 import base64
 import time
-import xml.etree.ElementTree as ET
+import subprocess
+import math
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -17,16 +18,18 @@ from email import encoders
 from dotenv import load_dotenv
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from fpdf import FPDF
 
 # Load environment variables
 load_dotenv()
 
 # VirusTotal API settings
-VIRUSTOTAL_API_KEY = "YOUR VIRUS TOTAL API"
+VIRUSTOTAL_API_KEY = os.getenv("VIRUSTOTAL_API_KEY")
 VIRUSTOTAL_API_URL = "https://www.virustotal.com/api/v3/files"
 
 # Gmail API settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
+GMAIL_EMAIL = os.getenv("GMAIL_EMAIL")
 
 # Database settings
 DATABASE_NAME = "malware_scan.db"
@@ -34,6 +37,16 @@ DATABASE_NAME = "malware_scan.db"
 # Quarantine directory
 QUARANTINE_DIR = "quarantine"
 os.makedirs(QUARANTINE_DIR, exist_ok=True)
+
+# Known malware signatures (MD5 hashes)
+KNOWN_MALWARE_HASHES = {
+    "e99a18c428cb38d5f260853678922e03",  # Example hash 1
+    "5d41402abc4b2a76b9719d911017c592",  # Example hash 2
+    # Add more known malware hashes here
+}
+
+# YARA rules file
+YARA_RULES_FILE = "malware_rules.yar"
 
 # Initialize SQLite database
 def init_db():
@@ -63,7 +76,7 @@ def calculate_entropy(file_path):
         for x in range(256):
             p_x = float(data.count(x)) / len(data)
             if p_x > 0:
-                entropy += -p_x * (p_x.__log2__())
+                entropy += -p_x * math.log2(p_x)
         return entropy
 
 # Function to calculate MD5 hash of a file
@@ -73,6 +86,68 @@ def calculate_md5(file_path):
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+# Function to check if a file matches YARA rules
+def check_yara_rules(file_path):
+    if not os.path.exists(YARA_RULES_FILE):
+        print(f"YARA rules file '{YARA_RULES_FILE}' not found.")
+        return False, "YARA rules file missing."
+
+    try:
+        result = subprocess.run(
+            ["yara", YARA_RULES_FILE, file_path],
+            capture_output=True, text=True
+        )
+        if result.returncode == 0 and result.stdout:
+            return True, f"YARA rule match: {result.stdout.strip()}"
+        return False, "No YARA rule matches."
+    except Exception as e:
+        return False, f"YARA scan failed: {e}"
+
+# Function to monitor file behavior (sandbox-like)
+def monitor_behavior(file_path):
+    try:
+        # Simulate execution in a sandbox
+        print(f"Monitoring behavior of {file_path}...")
+        time.sleep(5)  # Simulate execution time
+        # Check for suspicious behavior (e.g., file modifications, network connections)
+        # This is a placeholder for actual behavioral analysis
+        return False, "No suspicious behavior detected."
+    except Exception as e:
+        return False, f"Behavior monitoring failed: {e}"
+
+# Function to check if a file is malicious (offline detection)
+def is_malicious_offline(file_path):
+    file_hash = calculate_md5(file_path)
+    entropy = calculate_entropy(file_path)
+
+    # Debug: Print file hash and entropy
+    print(f"File hash: {file_hash}, Entropy: {entropy}")
+
+    # Signature-based detection
+    if file_hash in KNOWN_MALWARE_HASHES:
+        print(f"Known malware signature detected: {file_hash}")
+        return True, "Known malware signature detected."
+
+    # Heuristic detection
+    if entropy > 7.5 and file_path.endswith((".exe", ".dll", ".php")):
+        print(f"High entropy ({entropy:.2f}) and suspicious file type.")
+        return True, f"High entropy ({entropy:.2f}) and suspicious file type."
+
+    # YARA rule detection
+    yara_malicious, yara_details = check_yara_rules(file_path)
+    if yara_malicious:
+        print(f"YARA rule match: {yara_details}")
+        return True, yara_details
+
+    # Behavioral analysis
+    behavior_malicious, behavior_details = monitor_behavior(file_path)
+    if behavior_malicious:
+        print(f"Suspicious behavior detected: {behavior_details}")
+        return True, behavior_details
+
+    print("No threats detected.")
+    return False, "No threats detected."
 
 # Function to scan a file using VirusTotal API
 def scan_file(file_path):
@@ -88,6 +163,7 @@ def scan_file(file_path):
                 time.sleep(10)  # Wait 10 seconds before retrying
                 continue
             elif response.status_code != 200:
+                print(f"API request failed with status code {response.status_code}: {response.text}")
                 return {"error": f"API request failed with status code {response.status_code}"}
             break
         else:
@@ -114,47 +190,104 @@ def authenticate_gmail():
             token.write(creds.to_json())
     return creds
 
-# Function to create an XML report
-def create_xml_report(report, threats_found):
-    root = ET.Element("ScanReport")
+# Function to create a PDF report
+def create_pdf_report(report, threats_found):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=14, style="B")  # Bold and larger font for the title
+
+    # Add a title
+    pdf.cell(200, 10, txt="Malware Scan Report", ln=True, align="C")
+    pdf.ln(10)  # Add some space after the title
+
+    # Add scan summary
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt=f"Threats Found: {threats_found}", ln=True)
+    pdf.cell(200, 10, txt=f"Total Files Scanned: {len(report)}", ln=True)
+    pdf.ln(10)  # Add some space after the summary
+
+    # Add File Hashes as a paragraph
+    pdf.set_font("Arial", size=12, style="B")
+    pdf.cell(200, 10, txt="File Hashes:", ln=True)
+    pdf.set_font("Arial", size=10)
+    hashes = [entry["hash"] for entry in report if entry["hash"] != "N/A"]
+    hash_text = ", ".join(hashes)  # Combine hashes into a single string
+    pdf.multi_cell(0, 10, txt=hash_text)  # Display hashes in a paragraph
+    pdf.ln(10)  # Add some space after the hashes
+
+    # Add Malicious Files as a paragraph
+    pdf.set_font("Arial", size=12, style="B")
+    pdf.cell(200, 10, txt="Malicious Files:", ln=True)
+    pdf.set_font("Arial", size=10)
+    malicious_files = [entry["path"] for entry in report if entry["malicious"] == 1]
+    malicious_text = ", ".join(malicious_files) if malicious_files else "None"
+    pdf.multi_cell(0, 10, txt=malicious_text)  # Display malicious files in a paragraph
+    pdf.ln(10)  # Add some space after the malicious files
+
+    # Add Suspicious Files as a paragraph
+    pdf.set_font("Arial", size=12, style="B")
+    pdf.cell(200, 10, txt="Suspicious Files:", ln=True)
+    pdf.set_font("Arial", size=10)
+    suspicious_files = [entry["path"] for entry in report if entry["suspicious"] == 1]
+    suspicious_text = ", ".join(suspicious_files) if suspicious_files else "None"
+    pdf.multi_cell(0, 10, txt=suspicious_text)  # Display suspicious files in a paragraph
+    pdf.ln(10)  # Add some space after the suspicious files
+
+    # Add Entropy Values as a paragraph
+    pdf.set_font("Arial", size=12, style="B")
+    pdf.cell(200, 10, txt="Entropy Values:", ln=True)
+    pdf.set_font("Arial", size=10)
+    entropy_values = [f"{entry['entropy']:.2f}" for entry in report]
+    entropy_text = ", ".join(entropy_values)  # Combine entropy values into a single string
+    pdf.multi_cell(0, 10, txt=entropy_text)  # Display entropy values in a paragraph
+    pdf.ln(10)  # Add some space after the entropy values
+
+    # Add Threat Details as a paragraph
+    pdf.set_font("Arial", size=12, style="B")
+    pdf.cell(200, 10, txt="Threat Details:", ln=True)
+    pdf.set_font("Arial", size=10)
+    threat_details = [entry.get("threat_details", "N/A") for entry in report]
+    threat_text = ", ".join(threat_details)  # Combine threat details into a single string
+    pdf.multi_cell(0, 10, txt=threat_text)  # Display threat details in a paragraph
+    pdf.ln(10)  # Add some space after the threat details
+
+    # Add a table for file paths
+    pdf.set_font("Arial", size=10, style="B")  # Bold font for headers
+    pdf.set_fill_color(200, 220, 255)  # Light blue background for headers
+    pdf.cell(200, 10, txt="File Paths", border=1, fill=True, ln=True)
+
+    # Reset font for table content
+    pdf.set_font("Arial", size=10)
+    pdf.set_fill_color(255, 255, 255)  # White background for content
+
     for entry in report:
-        file_element = ET.SubElement(root, "File")
-        file_element.set("path", entry["path"])
-        file_element.set("hash", entry["hash"])
-        file_element.set("malicious", str(entry["malicious"]))
-        file_element.set("suspicious", str(entry["suspicious"]))
-        file_element.set("entropy", str(entry["entropy"]))
-        if threats_found:
-            file_element.set("threat_details", entry["threat_details"])
+        pdf.cell(200, 10, txt=entry["path"], border=1, ln=True)
 
-    tree = ET.ElementTree(root)
-    tree.write("scan_report.xml", encoding="utf-8", xml_declaration=True)
+    # Save the PDF
+    pdf.output("scan_report.pdf")
+    print("PDF report generated: scan_report.pdf")
 
-    # Debugging: Print the XML content
-    print("XML Report Content:")
-    ET.dump(root)
-
-# Function to send an email with an XML attachment
-def send_email(subject, body, xml_file_path):
+# Function to send an email with a PDF attachment
+def send_email(subject, body, pdf_file_path):
     creds = authenticate_gmail()
     service = build("gmail", "v1", credentials=creds)
 
     # Create the email message
     msg = MIMEMultipart()
-    msg["To"] = "YOUR_EMAIL"
+    msg["To"] = GMAIL_EMAIL
     msg["Subject"] = subject
 
     # Attach the body
     msg.attach(MIMEText(body, "plain"))
 
-    # Attach the XML file
-    with open(xml_file_path, "rb") as attachment:
+    # Attach the PDF file
+    with open(pdf_file_path, "rb") as attachment:
         part = MIMEBase("application", "octet-stream")
         part.set_payload(attachment.read())
         encoders.encode_base64(part)
         part.add_header(
             "Content-Disposition",
-            f"attachment; filename={os.path.basename(xml_file_path)}",
+            f"attachment; filename={os.path.basename(pdf_file_path)}",
         )
         msg.attach(part)
 
@@ -184,12 +317,39 @@ def scan_directory(directory):
             file_path = os.path.join(root, file)
             print(f"Scanning file: {file_path}")
 
+            # Debug: Print file type and size
+            file_size = os.path.getsize(file_path) / (1024 * 1024)  # Size in MB
+            print(f"File type: {os.path.splitext(file)[1]}, Size: {file_size:.2f} MB")
+
+            # Skip files larger than 650 MB
+            if file_size > 650:
+                print(f"File {file_path} is too large ({file_size:.2f} MB). Skipping...")
+                continue
+
             # Check for specific file types
             if file.endswith((".php", ".dll", ".exe")):
                 print(f"Detected suspicious file type: {file}")
 
+            # Offline detection
+            malicious_offline, threat_details_offline = is_malicious_offline(file_path)
+            if malicious_offline:
+                print(f"Offline detection found a threat: {threat_details_offline}")
+                report.append({
+                    "path": file_path,
+                    "hash": calculate_md5(file_path),
+                    "malicious": 1,
+                    "suspicious": 1,
+                    "entropy": calculate_entropy(file_path),
+                    "threat_details": threat_details_offline
+                })
+                quarantine_file(file_path)
+                threats_found = True
+                continue  # Skip VirusTotal scan if offline detection finds a threat
+
+            # VirusTotal API scan
             result = scan_file(file_path)
             if "error" in result:
+                print(f"Error scanning file {file_path}: {result['error']}")
                 report.append({
                     "path": file_path,
                     "hash": "N/A",
@@ -208,6 +368,20 @@ def scan_directory(directory):
                 }
                 analysis_response = requests.get(analysis_url, headers=headers)
                 analysis_result = analysis_response.json()
+                print("VirusTotal API Response:", analysis_result)  # Debug: Print API response
+
+                if "error" in analysis_result and analysis_result["error"]["code"] == "NotFoundError":
+                    print(f"File {file_path} not found in VirusTotal database.")
+                    report.append({
+                        "path": file_path,
+                        "hash": calculate_md5(file_path),
+                        "malicious": 0,
+                        "suspicious": 0,
+                        "entropy": calculate_entropy(file_path),
+                        "threat_details": "File not found in VirusTotal database."
+                    })
+                    continue
+
                 if "data" in analysis_result and "attributes" in analysis_result["data"]:
                     stats = analysis_result["data"]["attributes"]["last_analysis_stats"]
                     entropy = calculate_entropy(file_path)
@@ -222,8 +396,12 @@ def scan_directory(directory):
                         "threat_details": threat_details
                     })
 
+                    # Debug: Print scan results
+                    print(f"Scan results for {file_path}: {threat_details}")
+
                     # Quarantine if malicious or suspicious
                     if stats["malicious"] > 0 or stats["suspicious"] > 0:
+                        print(f"Threat detected by VirusTotal: {threat_details}")
                         quarantine_file(file_path)
                         threats_found = True
 
@@ -237,6 +415,7 @@ def scan_directory(directory):
                     conn.commit()
                     conn.close()
             else:
+                print(f"No scan data for {file_path}: {result}")
                 report.append({
                     "path": file_path,
                     "hash": "N/A",
@@ -272,19 +451,19 @@ def main():
     print("Starting scan...")
     report, threats_found = scan_directory(directory)
 
-    # Create XML report
-    create_xml_report(report, threats_found)
+    # Create PDF report
+    create_pdf_report(report, threats_found)
 
     # Prepare email content
     subject = "Malware Scan Report"
     body = "The malware scan has completed. "
     if threats_found:
-        body += "Threats were detected. Please review the attached XML report for details."
+        body += "Threats were detected. Please review the attached PDF report for details."
     else:
-        body += "No threats were detected. The XML report is attached."
+        body += "No threats were detected. The PDF report is attached."
 
-    # Send the email with the XML attachment
-    send_email(subject, body, "scan_report.xml")
+    # Send the email with the PDF attachment
+    send_email(subject, body, "scan_report.pdf")
 
     # Start real-time monitoring
     event_handler = FileChangeHandler()
@@ -295,7 +474,7 @@ def main():
 
     try:
         while True:
-            pass
+            time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
