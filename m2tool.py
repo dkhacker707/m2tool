@@ -24,12 +24,11 @@ from fpdf import FPDF
 load_dotenv()
 
 # VirusTotal API settings
-VIRUSTOTAL_API_KEY = os.getenv("VIRUSTOTAL_API_KEY")
+VIRUSTOTAL_API_KEY = os.getenv("VIRUSTOTAL_API_KEY", "c4f5884f96005d4d945c768bb91a96f4adcba0699855678f2c0883cec8c2e56a")
 VIRUSTOTAL_API_URL = "https://www.virustotal.com/api/v3/files"
 
 # Gmail API settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
-GMAIL_EMAIL = os.getenv("GMAIL_EMAIL")
 
 # Database settings
 DATABASE_NAME = "malware_scan.db"
@@ -274,7 +273,7 @@ def send_email(subject, body, pdf_file_path):
 
     # Create the email message
     msg = MIMEMultipart()
-    msg["To"] = GMAIL_EMAIL
+    msg["To"] = "hackerreal935@gmail.com"
     msg["Subject"] = subject
 
     # Attach the body
