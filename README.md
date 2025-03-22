@@ -53,6 +53,7 @@ git clone https://github.com/dkhacker707/m2tool.git
 cd m2tool
 
 3. Install Dependencies
+
 Install the required Python libraries:
 
 bash
@@ -63,7 +64,9 @@ pip install -r requirements.txt
 Create a .env file in the project directory and add the following:
 
 VIRUSTOTAL_API_KEY=your_virustotal_api_key
+
 GMAIL_EMAIL=your_email@gmail.com
+
 Replace your_virustotal_api_key with your actual VirusTotal API key and your_email@gmail.com with your Gmail address.
 
 6. Add credentials.json
