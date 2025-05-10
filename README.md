@@ -1,163 +1,31 @@
-M2tool is a Python-based application designed to scan files and directories for malware using the VirusTotal API. It provides real-time monitoring, heuristic analysis, and email reporting with PDF attachments. The tool is built with a focus on detecting .php, .dll, and .exe payload files.
-________________________________________
-Features:
-
-(A) File Scanning:
-
-•	Scans files using the VirusTotal API.
-
-•	Detects .php, .dll, and .exe files.
-
-•	Calculates file hashes (MD5) for signature-based detection.
-
-•	Uses YARA rules for advanced malware detection.
-
-(B) Real-Time Monitoring:
-
-•	Monitors directories for new or modified files using the Watchdog library.
-
-•	Automatically scans files when they are added or modified.
-
-(C) Heuristic Analysis:
-
-•	Calculates file entropy to detect suspicious files.
-
-•	Uses YARA rules for advanced malware detection.
-
-(D) Quarantine Functionality:
-
-•	Moves suspicious or malicious files to a quarantine directory for further inspection.
-
-(E) Email Reporting:
-
-•	Sends scan reports via email with PDF attachments using the Gmail API.
-
-•	Includes details such as file paths, hashes, entropy values, and threat details.
-
-(F) Database Integration:
-
-•	Stores scan results in an SQLite database for historical analysis.
-
-•	Tracks file paths, hashes, malicious status, suspicious status, and heuristic scores.
-________________________________________
-Technologies Used:
-
-•	Python: The core programming language used for the project.
-
-•	VirusTotal API: For scanning files and detecting malware.
-
-•	Gmail API: For sending email reports with PDF attachments.
-
-•	SQLite: For storing scan results in a lightweight database.
-
-•	Watchdog: For real-time file system monitoring.
-
-•	Google OAuth 2.0: For secure authentication with the Gmail API.
-
-•	FPDF: For generating PDF reports.
-
-•	dotenv: For managing environment variables securely.
-
-•	YARA: For advanced malware detection using custom rules.
-________________________________________
-Prerequisites:
-
-Before running the program, ensure you have the following:
-
-1.	Python 3.7 or higher: Download and install Python from python.org.
-
-2.	VirusTotal API Key: Sign up at VirusTotal and get an API key.
-
-3.	Google Cloud Project:
-
-o	Create a project in the Google Cloud Console.
-
-o	Enable the Gmail API.
-
-o	Generate OAuth 2.0 credentials (credentials.json).
-
-4.	YARA Rules File: Create or download a .yar file containing YARA rules for malware detection. Place it in the project directory as malware_rules.yar.
-________________________________________
-Setup and Installation
-
-1. Clone the Repository:
-
-Clone the repository to your local machine:
-
-bash
-git clone https://github.com/dkhacker707/m2tool.git
-
-cd m2tool
-
-3. Install Dependencies
-
-Install the required Python libraries:
-
-bash
-
-pip install -r requirements.txt
-
-5. Set Up Environment Variables:
-
-Create a .env file in the project directory and add the following:
-
-VIRUSTOTAL_API_KEY=your_virustotal_api_key
-
-GMAIL_EMAIL=your_email@gmail.com
-
-Replace your_virustotal_api_key with your actual VirusTotal API key and your_email@gmail.com with your Gmail address.
-
-6. Add credentials.json:
-
-Place the credentials.json file (downloaded from the Google Cloud Console) in the project directory. This file is required for authenticating with the Gmail API.
-
-8. Add YARA Rules File:
-
-Place your YARA rules file (malware_rules.yar) in the project directory. This file is used for advanced malware detection.
-
-Usage:
-
-1.	Run the script:
-bash
-
-python m2tool.py
-
-3.	Enter the directory you want to scan when prompted.
-
-4.	The script will:
-
-o	Scan the directory for malicious files.
-
-o	Generate a PDF report (scan_report.pdf).
-
-o	Send the report via email to the address specified in the .env file.
-
-o	Start real-time monitoring of the directory for new or modified files.
-________________________________________
-PDF Report:
-
-The generated PDF report includes:
-
-•	A summary of threats found.
-
-•	File hashes.
-
-•	Malicious and suspicious files.
-
-•	Entropy values.
-
-•	Threat details.
-
-Email Notification:
-
-An email will be sent to the specified address with the PDF report attached.
-
-Notes:
-
-•	Ensure the .env file is not shared or uploaded to public repositories, as it contains sensitive information.
-
-•	The quarantine directory (quarantine/) is automatically created in the project directory. Suspicious files will be moved here.
-
-•	For real-time monitoring, the script uses the Watchdog library. Press Ctrl+C to stop monitoring.
-
-•	The YARA rules file (malware_rules.yar) must be placed in the project directory for advanced malware detection
+# About
+Anti-Malware (formerly M2tool) is a Python-based application designed to detect and remove malicious files from a system. Initially developed as M2tool, the project has evolved into a more advanced anti-malware solution following several enhancements and added features.
+The tool scans files and directories for malware using the VT API, with a focus on identifying suspicious  .dll, .exe, etc payloads. It offers real-time monitoring, heuristic analysis, and automated email reporting with comprehensive information to keep administrators informed of detected threats.
+
+# Features
+1. SOC NODE: This is a secure gateway that allows the Anti-Malware Administrator to silently connect to a client machine through a secured socket.
+2. Realtime Monitoring: Sometimes, your operating system's antivirus may fail to detect certain malicious files. This project enhances detection by leveraging over 35 antivirus engines and sandbox technologies through the VT.
+3. Reporting
+4. Realtime alert using resend (Externally) and mailHog (Locally) by https://github.com/mailhog/MailHog
+   
+# Screenshoots
+1. Server side
+<img width="1502" alt="image" src="https://github.com/user-attachments/assets/49d576b5-54cd-4979-bbba-6c6005471e1f" />
+2. Client side
+<img width="1512" alt="Screenshot 2025-05-10 at 21 47 49" src="https://github.com/user-attachments/assets/17a0bf41-4041-404f-b11a-eb9741f3aaa7" />
+<img width="1494" alt="Screenshot 2025-05-10 at 21 58 35" src="https://github.com/user-attachments/assets/a9bdf196-682c-4fab-8830-711a0b83cc86" />
+3. SOC/Admin Panel
+<img width="1286" alt="Screenshot 2025-05-10 at 22 00 38" src="https://github.com/user-attachments/assets/b6389d38-cbb1-458b-bf8d-6ecfca427ba7" />
+4. Contol client
+<img width="1512" alt="Screenshot 2025-05-10 at 21 56 43" src="https://github.com/user-attachments/assets/11e9c63b-b8cf-4319-85ae-23733debcb52" />
+5. Alert
+<img width="1043" alt="Screenshot 2025-05-10 at 21 53 33" src="https://github.com/user-attachments/assets/8c5ca7e8-e057-430b-864d-10110e811830" />
+
+# Setup
+1. pip3 install -r requirements.txt (client side)
+2. Register free account https://www.virustotal.com and insert your API to the client script
+3. Download mailhog depend on your Arch: https://github.com/mailhog/MailHog/releases/tag/v1.0.1 (Make sure the server running MailHog is accessible to all client machines.)
+4. change the client script line no: 246 insert your mailhog host IP (Optional: You can compile the script into an .exe file to run it continuously on client machines.)
+5. Your all set
+
+Note: Don’t forget to specify the IP address of the server (where the main script is running) in the client script.
