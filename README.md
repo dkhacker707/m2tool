@@ -15,9 +15,9 @@ The tool scans files and directories for malware using the VT API, with a focus 
 <img width="1512" alt="Screenshot 2025-05-10 at 21 47 49" src="https://github.com/user-attachments/assets/17a0bf41-4041-404f-b11a-eb9741f3aaa7" />
 <img width="1494" alt="Screenshot 2025-05-10 at 21 58 35" src="https://github.com/user-attachments/assets/a9bdf196-682c-4fab-8830-711a0b83cc86" />
 3. SOC/Admin Panel
- <img width="1286" alt="Screenshot 2025-05-10 at 22 00 38" src="https://github.com/user-attachments/assets/eab15592-eb1d-462b-8108-cc0a98089212" />
+<img width="1286" alt="Screenshot 2025-05-10 at 22 00 38" src="https://github.com/user-attachments/assets/b6389d38-cbb1-458b-bf8d-6ecfca427ba7" />
 4. Contol client
- <img width="1512" alt="Screenshot 2025-05-10 at 21 56 43" src="https://github.com/user-attachments/assets/04959ade-0b33-4c46-b965-bbe8b2748484" />
+<img width="1512" alt="Screenshot 2025-05-10 at 21 56 43" src="https://github.com/user-attachments/assets/11e9c63b-b8cf-4319-85ae-23733debcb52" />
 5. Alert
 <img width="1043" alt="Screenshot 2025-05-10 at 21 53 33" src="https://github.com/user-attachments/assets/8c5ca7e8-e057-430b-864d-10110e811830" />
 
