@@ -5,3 +5,4 @@ rich
 resend
 cryptography
 plyer 
+pync
