@@ -21,4 +21,11 @@ The tool scans files and directories for malware using the VT API, with a focus 
 5. Alert
 <img width="1043" alt="Screenshot 2025-05-10 at 21 53 33" src="https://github.com/user-attachments/assets/8c5ca7e8-e057-430b-864d-10110e811830" />
 
+# Setup
+1. pip3 install -r requirements.txt (client side)
+2. Register free account https://www.virustotal.com and insert your API to the client script
+3. Download mailhog depend on your Arch: https://github.com/mailhog/MailHog/releases/tag/v1.0.1 (Make sure the server running MailHog is accessible to all client machines.)
+4. change the client script line no: 246 insert your mailhog host IP (Optional: You can compile the script into an .exe file to run it continuously on client machines.)
+5. Your all set
 
+Note: Don’t forget to specify the IP address of the server (where the main script is running) in the client script.
