@@ -12,5 +12,9 @@ The tool scans files and directories for malware using the VT API, with a focus 
 1. Server side
 <img width="1502" alt="image" src="https://github.com/user-attachments/assets/49d576b5-54cd-4979-bbba-6c6005471e1f" />
 2. Client side
-![image](https://github.com/user-attachments/assets/f0f22f54-645c-4621-9f2f-459b8bf9cf39)
+<img width="1512" alt="Screenshot 2025-05-10 at 21 47 49" src="https://github.com/user-attachments/assets/17a0bf41-4041-404f-b11a-eb9741f3aaa7" />
+<img width="1494" alt="Screenshot 2025-05-10 at 21 58 35" src="https://github.com/user-attachments/assets/a9bdf196-682c-4fab-8830-711a0b83cc86" />
+
+
+
 
